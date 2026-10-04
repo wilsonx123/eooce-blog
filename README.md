@@ -1,6 +1,6 @@
 # 老王Blog
 
-一个前后端分离的个人博客系统。前台简洁大气，支持深色模式、音乐播放器、自定义菜单与单页；后台提供文章、分类、标签、评论、菜单与站点设置的全功能管理。
+一个前后端分离的个人博客系统。前台简洁大气，支持深色模式、音乐播放器、自定义菜单与单页；后台提供文章、分类、标签、评论、自定义链接、菜单与站点设置的全功能管理。完全适配Mackdown格式，写博客就想写Mackdown一样简单。
 
 **技术栈**：Vue 3 + TypeScript + Vite + Tailwind CSS ｜ Express + better-sqlite3 (SQLite) + JWT
 
@@ -13,7 +13,7 @@
 - 全局：明暗主题切换（圆形扩散动画）、滚动进入动画、音乐播放器（在线歌单）
 - 评论（审核通过后展示）、文章搜索、自定义单页、外链菜单（新标签打开）
 
-**后台**（`/admin`，默认账号 `admin / admin123`）
+**后台**（`/home`，默认账号 `admin / admin123`）
 
 - 仪表盘（文章/评论/浏览量统计与 7 日趋势）
 - 文章管理（Markdown 编辑、置顶、发布/草稿）、分类管理、标签管理
@@ -55,7 +55,7 @@ npm run dev          # http://localhost:5173，已代理 /api 到 3001
 
 或使用一键脚本：`bash start.sh`
 
-登录后台：`/admin`，默认账号 `admin / admin123`（登录后请在「站点设置 → 账号安全」修改）。
+登录后台：`/home`，默认账号 `admin / admin123`（登录后请在「站点设置 → 账号安全」修改）。
 
 ## 测试
 
@@ -79,30 +79,27 @@ npm run start      # 启动服务，默认 3001 端口，访问 http://localhost
 
 ## Docker 部署
 
-容器内不运行 Vite 开发服务器：前端在构建阶段编译为静态产物，由 Express 托管，**单端口对外提供整站**（API + 页面）。默认端口 `9199`，与 `start.sh` 的端口约定保持一致。
+容器内不运行 Vite 开发服务器：前端在构建阶段编译为静态产物，由 Express 托管，**单端口对外提供整站**（API + 页面）。默认端口 `3001`，与 `start.sh` 的端口约定保持一致。
 
 ```bash
-# 构建镜像
-docker build -t blog .
-
-# 运行（数据卷持久化 SQLite）
+# 运行docker并数据卷持久化SQLite数据库
 docker run -d \
   --name blog \
-  -p 9199:9199 \
+  -p 3001:3001 \
   -e JWT_SECRET="请替换为随机长字符串" \
   -v blog-data:/app/data \
-  blog
+  ghcr.io/eooce/blog:latest
 ```
 
-访问 `http://localhost:9199` 即为博客首页，后台在 `/admin`。
+访问 `http://localhost:3001` 即为博客首页，后台在 `/home`。
 
-- 宿主机端口随意映射，例如 `-p 80:9199`；容器内监听端口可用 `-e PORT=xxxx` 覆盖（记得同步调整 `-p`）
+- 宿主机端口随意映射，例如 `-p 80:3001`；容器内监听端口可用 `-e PORT=xxxx` 覆盖（记得同步调整 `-p`）
 
 ### 环境变量
 
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
-| `PORT` | `9199` | 容器内服务监听端口 |
+| `PORT` | `3001` | 容器内服务监听端口 |
 | `JWT_SECRET` | 内置开发密钥 | 登录令牌签名密钥，**生产必须修改** |
 | `BLOG_DB_PATH` | `/app/data/blog.db` | SQLite 数据库文件路径 |
 | `WEB_DIST` | `web/dist` | 前端构建产物目录 |
@@ -112,9 +109,9 @@ docker run -d \
 ```yaml
 services:
   blog:
-    build: .
+    image:ghcr.io/eooce/blog:latest
     ports:
-      - "9199:9199"
+      - "3001:3001"
     environment:
       JWT_SECRET: "请替换为随机长字符串"
     volumes:

@@ -28,6 +28,7 @@ export interface PostQuery {
 
 export const publicApi = {
   site: () => client.get<unknown, SiteInfo>('/site'),
+  ytTitle: (v: string) => client.get<unknown, { title: string }>('/yt-title', { params: { v } }),
   posts: (params: PostQuery) => client.get<unknown, PageData<PostItem>>('/posts', { params }),
   post: (slug: string) => client.get<unknown, PostDetail>(`/posts/${slug}`),
   comments: (slug: string) => client.get<unknown, Comment[]>(`/posts/${slug}/comments`),

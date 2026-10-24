@@ -259,6 +259,31 @@ router.get('/archives', (_req, res) => {
   })
 })
 
+/* ---------------- YouTube 標題存取（前台音樂播放器） ---------------- */
+
+/** 標題快取：命中即回，避免每次開播放器都打到 YouTube */
+const ytTitleCache = new Map<string, { title: string; expires: number }>()
+const YT_TITLE_TTL = 24 * 60 * 60 * 1000
+const YT_TITLE_TTL_FAIL = 5 * 60 * 1000
+
+/** 經 oEmbed 取影片標題；失敗（影片不存在/嵌入被禁用）在短 TTL 內不再重試 */
+async function fetchYouTubeTitle(videoId: string): Promise<string | null> {
+  const hit = ytTitleCache.get(videoId)
+  if (hit && hit.expires > Date.now()) return hit.title || null
+  try {
+    const url = `https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}&format=json`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error('bad status')
+    const data = (await res.json()) as { title?: unknown }
+    const title = String(data.title ?? '').trim().slice(0, 160)
+    ytTitleCache.set(videoId, { title, expires: Date.now() + (title ? YT_TITLE_TTL : YT_TITLE_TTL_FAIL) })
+    return title || null
+  } catch {
+    ytTitleCache.set(videoId, { title: '', expires: Date.now() + YT_TITLE_TTL_FAIL })
+    return null
+  }
+}
+
 router.get('/site', (_req, res) => {
   const rows = db.prepare('SELECT key, value FROM site_settings').all() as Array<{
     key: string
@@ -267,6 +292,15 @@ router.get('/site', (_req, res) => {
   const site: Record<string, string> = {}
   for (const r of rows) site[r.key] = r.value
   ok(res, site)
+})
+
+// YouTube 標題代理：前台播放器清單展示真實影片標題（oEmbed 無 CORS，由後端轉發）
+router.get('/yt-title', async (req, res) => {
+  const id = String(req.query.v ?? '').trim()
+  if (!/^[A-Za-z0-9_-]{11}$/.test(id)) return fail(res, 400, '影片 ID 格式不正確')
+  const title = await fetchYouTubeTitle(id)
+  if (!title) return fail(res, 404, '無法取得影片標題')
+  ok(res, { title })
 })
 
 router.get('/nav', (_req, res) => {

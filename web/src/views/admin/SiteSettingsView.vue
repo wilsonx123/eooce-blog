@@ -372,7 +372,7 @@ onMounted(loadSite)
                 class="input resize-y font-mono text-[13px]"
                 placeholder="每行一條：名稱 | https://www.youtube.com/watch?v=xxxxxxxxxxx（名稱可省略，直接貼網址）"
               />
-              <p class="mt-1 text-xs text-slate-400">支援 watch / youtu.be / shorts 與 ?list= 歌單連結；這些條目會置頂顯示在播放器清單，以內嵌 YouTube 播放器播出</p>
+              <p class="mt-1 text-xs text-slate-400">支援 watch / youtu.be / shorts 與 ?list= 歌單連結；名稱省略時會自動抓取 YouTube 影片標題顯示，條目置頂、以內嵌播放器播出</p>
             </div>
           </div>
         </div>

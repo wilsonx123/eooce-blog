@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useSiteStore } from '@/stores/site'
+import { publicApi } from '@/api'
 
 interface Song {
   filename: string
@@ -64,7 +65,7 @@ const ytEntries = computed<YtEntry[]>(() => {
     const url = (parts.length >= 2 ? parts[parts.length - 1] : parts[0]).trim()
     const title = parts.length >= 2 ? parts[0].trim() : ''
     const parsed = parseYouTubeUrl(url)
-    if (parsed) out.push({ id: parsed.id, playlistId: parsed.playlistId, title: title || (parsed.id ? 'YouTube 影片' : 'YouTube 歌單') })
+    if (parsed) out.push({ id: parsed.id, playlistId: parsed.playlistId, title })
   }
   return out
 })
@@ -100,6 +101,37 @@ function closeYouTube() {
 const showLocal = computed(() => site.info.music_local_visible !== '0')
 const showYt = computed(() => site.info.music_youtube_visible !== '0')
 const ytUsable = computed(() => showYt.value && ytEntries.value.length > 0)
+
+/** 已抓取的影片標題（videoId → 標題），後台未填名稱時展示 */
+const ytMeta = ref<Record<string, string>>({})
+const ytMetaFetching = new Set<string>()
+
+/** 條目顯示標題：後台名稱優先，其次自動抓取的影片標題，最後佔位字 */
+function ytTitleOf(entry: YtEntry): string {
+  return entry.title || (entry.id ? ytMeta.value[entry.id] ?? '' : '') || (entry.id ? 'YouTube 影片' : 'YouTube 歌單')
+}
+
+/** 正在播放的 YouTube 標題（標題抓到後自動更新） */
+const currentYtLabel = computed(() => (currentYt.value ? ytTitleOf(currentYt.value) : ''))
+
+/** 清單載入後為後台未命名的條目補抓影片標題 */
+watch(
+  ytEntries,
+  (entries) => {
+    for (const entry of entries) {
+      if (entry.title || !entry.id || ytMeta.value[entry.id] || ytMetaFetching.has(entry.id)) continue
+      ytMetaFetching.add(entry.id)
+      publicApi
+        .ytTitle(entry.id)
+        .then((res) => {
+          if (res.title) ytMeta.value[entry.id] = res.title
+        })
+        .catch(() => {})
+        .finally(() => ytMetaFetching.delete(entry.id))
+    }
+  },
+  { immediate: true },
+)
 
 const currentSong = computed(() => songs.value[currentIndex.value] ?? null)
 const progress = computed(() =>
@@ -369,14 +401,14 @@ onBeforeUnmount(() => {
           <!-- YouTube 播放模式：面板內嵌 YouTube 播放器，控制使用其內建介面 -->
           <template v-if="currentYt">
             <div class="mb-2 flex items-center justify-between gap-2">
-              <p class="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-200">{{ currentYt.title }}</p>
+              <p class="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-200">{{ currentYtLabel }}</p>
               <button class="btn-ghost h-7 w-7 shrink-0 rounded-lg p-0" title="關閉 YouTube 播放" @click="closeYouTube">✕</button>
             </div>
             <div class="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
               <iframe
                 v-if="ytEmbedUrl"
                 :src="ytEmbedUrl"
-                :title="currentYt.title"
+                :title="currentYtLabel"
                 class="absolute inset-0 h-full w-full"
                 allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                 allowfullscreen
@@ -508,7 +540,7 @@ onBeforeUnmount(() => {
                 @click="playYouTube(entry, i)"
               >
                 <span class="w-4 shrink-0 text-center text-[10px] font-bold text-rose-500">YT</span>
-                <span class="min-w-0 flex-1 block truncate text-sm text-slate-700 dark:text-slate-300">{{ entry.title }}</span>
+                <span class="min-w-0 flex-1 block truncate text-sm text-slate-700 dark:text-slate-300">{{ ytTitleOf(entry) }}</span>
                 <span class="shrink-0 text-[10px] text-rose-500">YouTube</span>
               </button>
             </li>

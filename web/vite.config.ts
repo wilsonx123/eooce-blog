@@ -4,8 +4,8 @@ import { createRequire } from 'node:module'
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// 开发模式下从根目录数据库读取站点设置，注入 index.html 的标题与描述
-// （与生产环境 Express 的注入行为一致，避免首屏标题闪烁）
+// 開發模式下從根目錄資料庫讀取網站設定，注入 index.html 的標題與描述
+// （與生產環境 Express 的注入行為一致，避免首屏標題閃爍）
 const nodeRequire = createRequire(import.meta.url)
 const rootDir = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..')
 
@@ -40,7 +40,7 @@ function injectSiteMeta(): Plugin {
   return {
     name: 'inject-site-meta',
     transformIndexHtml(html) {
-      // 仅注入 meta description；<title> 以 index.html 原文为准
+      // 僅注入 meta description；<title> 以 index.html 原文為準
       const { subtitle } = getSiteMeta()
       if (subtitle) return html.replace(/(name="description" content=")[^"]*(")/, `$1${esc(subtitle)}$2`)
       return html
@@ -56,7 +56,7 @@ export default defineConfig({
     },
   },
   server: {
-    // true = 允许任意域名访问开发服务器（默认仅允许 localhost 与 IP）
+    // true = 允許任意域名訪問開發伺服器（預設僅允許 localhost 與 IP）
     allowedHosts: true,
     proxy: {
       '/api': {

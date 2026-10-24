@@ -628,6 +628,8 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
     footer_badge: z.string().trim().max(60).default(''),
     footer_copyright: z.string().trim().max(120).default(''),
     footer_note: z.string().trim().max(120).default(''),
+    music_visible: z.boolean().default(true),
+    music_list_url: z.string().trim().max(300).default(''),
   })
   const parsed = schema.safeParse(await ctx.body())
   if (!parsed.success) {
@@ -644,6 +646,8 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
   // 備案資料：連結可為空（此時前台只顯示文字，不可點擊）
   if (parsed.data.icp_url) assertExternalUrl(parsed.data.icp_url)
   if (parsed.data.police_url) assertExternalUrl(parsed.data.police_url)
+  // 音樂播放器：歌單地址需為 http(s) 完整連結（留空使用內置預設）
+  if (parsed.data.music_list_url) assertExternalUrl(parsed.data.music_list_url)
   const upsertSql =
     'INSERT INTO site_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value'
   await qBatch(db, [
@@ -663,6 +667,8 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
     { sql: upsertSql, params: ['footer_badge', parsed.data.footer_badge] },
     { sql: upsertSql, params: ['footer_copyright', parsed.data.footer_copyright] },
     { sql: upsertSql, params: ['footer_note', parsed.data.footer_note] },
+    { sql: upsertSql, params: ['music_visible', parsed.data.music_visible ? '1' : '0'] },
+    { sql: upsertSql, params: ['music_list_url', parsed.data.music_list_url] },
   ])
   return { data: { message: '網站資料已更新' } }
 })

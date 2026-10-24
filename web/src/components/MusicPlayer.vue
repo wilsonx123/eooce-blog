@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useSiteStore } from '@/stores/site'
 
 interface Song {
   filename: string
@@ -29,6 +30,10 @@ let listLoaded = false
 let skipTries = 0
 let playErrorTimer = 0
 let clearSearchTimer = 0
+
+const site = useSiteStore()
+/** 歌單地址：後台「網站設定 → 音樂播放器」可自訂（留空使用內置預設） */
+const listUrl = computed(() => (site.info.music_list_url ?? '').trim() || 'https://music.eooce.com/api/music/list')
 
 const currentSong = computed(() => songs.value[currentIndex.value] ?? null)
 const progress = computed(() =>
@@ -80,7 +85,7 @@ async function loadList() {
   loading.value = true
   listError.value = ''
   try {
-    const res = await fetch('https://music.eooce.com/api/music/list')
+    const res = await fetch(listUrl.value)
     if (!res.ok) throw new Error('bad status')
     const data = await res.json()
     songs.value = data.data ?? []

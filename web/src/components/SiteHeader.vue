@@ -76,6 +76,9 @@ const items = computed<RenderItem[]>(() =>
   }),
 )
 
+/** 後台「網站設定 → 音樂播放器」開關控制顯示 */
+const showMusic = computed(() => site.info.music_visible !== '0')
+
 const PATH_PREFIXES: Record<string, string[]> = {
   '/categories': ['/categories', '/category'],
   '/tags': ['/tags', '/tag'],
@@ -246,7 +249,7 @@ onBeforeUnmount(() => {
           />
         </form>
 
-        <MusicPlayer />
+        <MusicPlayer v-if="showMusic" />
 
         <button
           class="btn-ghost h-9 w-9 rounded-xl p-0 transition-transform hover:rotate-12 active:scale-90"

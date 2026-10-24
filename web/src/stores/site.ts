@@ -16,6 +16,8 @@ const DEFAULT_SITE: SiteInfo = {
   footer_badge: '',
   footer_copyright: '',
   footer_note: '',
+  music_visible: '',
+  music_list_url: '',
 }
 
 /** 讀取上次成功獲取的網站資料，重新整理時首屏即可顯示正確內容 */

@@ -105,6 +105,10 @@ export interface SiteInfo {
   footer_copyright?: string
   /** 頁腳標語，留空使用預設 */
   footer_note?: string
+  /** 音樂播放器是否顯示：'1' 顯示 / '0' 隱藏 */
+  music_visible?: string
+  /** 音樂歌單 API 地址，留空使用預設 */
+  music_list_url?: string
 }
 
 export type NavMenuType = 'system' | 'group' | 'page' | 'link'

@@ -620,6 +620,8 @@ router.put('/site', (req, res) => {
     footer_badge: z.string().trim().max(60).default(''),
     footer_copyright: z.string().trim().max(120).default(''),
     footer_note: z.string().trim().max(120).default(''),
+    music_visible: z.boolean().default(true),
+    music_list_url: z.string().trim().max(300).default(''),
   })
   const parsed = schema.safeParse(req.body)
   if (!parsed.success) {
@@ -658,6 +660,10 @@ router.put('/site', (req, res) => {
   upsert.run('footer_badge', parsed.data.footer_badge)
   upsert.run('footer_copyright', parsed.data.footer_copyright)
   upsert.run('footer_note', parsed.data.footer_note)
+  // 音樂播放器：歌單地址需為 http(s) 完整連結（留空由前台使用內置預設）
+  if (parsed.data.music_list_url) assertExternalUrl(parsed.data.music_list_url)
+  upsert.run('music_visible', parsed.data.music_visible ? '1' : '0')
+  upsert.run('music_list_url', parsed.data.music_list_url)
   ok(res, { message: '網站資料已更新' })
 })
 

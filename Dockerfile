@@ -1,4 +1,4 @@
-# ---------- 阶段 1：构建前端 ----------
+# ---------- 階段 1：構建前端 ----------
 FROM node:24-alpine AS web-build
 WORKDIR /build
 COPY web/package.json web/package-lock.json ./
@@ -6,16 +6,16 @@ RUN npm ci
 COPY web ./
 RUN npm run build
 
-# ---------- 阶段 2：后端依赖（better-sqlite3 需要 native 编译工具） ----------
+# ---------- 階段 2：後端依賴（better-sqlite3 需要 native 編譯工具） ----------
 FROM node:24-alpine AS deps
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# ---------- 阶段 3：运行时 ----------
-# 容器内不运行 Vite：前端构建产物由 Express 托管，单端口对外提供整站
-# 默认 PORT=3001 与 start.sh 的端口约定一致，可用 -e PORT=xxxx 覆盖
+# ---------- 階段 3：運行時 ----------
+# 容器內不運行 Vite：前端構建產物由 Express 託管，單端口對外提供整站
+# 預設 PORT=3001 與 start.sh 的端口約定一致，可用 -e PORT=xxxx 覆蓋
 FROM node:24-alpine
 ENV NODE_ENV=production
 
@@ -26,7 +26,7 @@ COPY src ./src
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=web-build /build/dist ./web/dist
 
-# SQLite 数据目录（建议挂载卷持久化）
+# SQLite 數據目錄（建議掛載卷持久化）
 RUN mkdir -p /app/data
 VOLUME ["/app/data"]
 

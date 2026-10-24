@@ -2,7 +2,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { defineConfig } from 'vitest/config'
 
-// 每次运行使用独立临时目录，避免残留进程的文件锁影响测试
+// 每次運行使用獨立臨時目錄，避免殘留進程的檔案鎖影響測試
 export default defineConfig({
   test: {
     include: ['src/tests/**/*.test.ts'],

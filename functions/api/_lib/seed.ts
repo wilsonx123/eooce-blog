@@ -161,10 +161,10 @@ export async function seedIfEmpty(db: D1DatabaseLike): Promise<void> {
 
   await qBatch(db, [
     { sql: 'INSERT INTO users (username, password_hash) VALUES (?, ?)', params: ['admin', adminHash] },
-    { sql: "INSERT INTO site_settings (key, value) VALUES ('site_title', '老王Blog')" },
+    { sql: "INSERT INTO site_settings (key, value) VALUES ('site_title', 'LittleCLS')" },
     {
       sql: "INSERT INTO site_settings (key, value) VALUES ('site_subtitle', ?)",
-      params: ['老王blog — 代碼與文字的棲息地，記錄前端工程、後端架構與設計思考'],
+      params: ['Just For Fun'],
     },
     {
       sql: "INSERT INTO site_settings (key, value) VALUES ('about_content', ?)",
@@ -265,7 +265,7 @@ export function createSeedGate(dbGetter: () => D1DatabaseLike): () => Promise<vo
 
 const ABOUT_CONTENT = `## 關於我
 
-你好，歡迎來到 **老王Blog**。
+你好，歡迎來到 **LittleCLS**。
 
 我是一名全棧工程師，白天寫代碼，晚上寫字。這裏記錄我在前端工程、後端架構與產品設計路上的思考與實踐。
 

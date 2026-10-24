@@ -23,7 +23,7 @@ function getSiteMeta(): { title: string; subtitle: string } {
       .all() as Array<{ key: string; value: string }>
     db.close()
     const map = Object.fromEntries(rows.map((r) => [r.key, r.value]))
-    cachedTitle = map.site_title || '老王Blog'
+    cachedTitle = map.site_title || 'LittleCLS'
     cachedSubtitle = map.site_subtitle || ''
     cachedAt = Date.now()
   } catch {

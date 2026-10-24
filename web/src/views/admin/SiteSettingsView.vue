@@ -200,7 +200,7 @@ onMounted(loadSite)
         <div class="grid gap-5 sm:grid-cols-2">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">網站標題 *</label>
-            <input v-model="form.site_title" type="text" maxlength="60" class="input" placeholder="例如：老王Blog" />
+            <input v-model="form.site_title" type="text" maxlength="60" class="input" placeholder="例如：LittleCLS" />
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">網站副標題</label>

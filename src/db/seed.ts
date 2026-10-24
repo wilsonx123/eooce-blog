@@ -29,11 +29,11 @@ export function seedIfEmpty(): void {
     )
 
     const settings = db.prepare('INSERT INTO site_settings (key, value) VALUES (?, ?)')
-    settings.run('site_title', '老王Blog')
-    settings.run('site_subtitle', '老王blog — 代碼與文字的棲息地，記錄前端工程、後端架構與設計思考')
+    settings.run('site_title', 'LittleCLS')
+    settings.run('site_subtitle', 'Just For Fun')
     settings.run('about_content', `## 關於我
 
-你好，歡迎來到 **老王Blog**。
+你好，歡迎來到 **LittleCLS**。
 
 我是一名全棧工程師，白天寫代碼，晚上寫字。這裏記錄我在前端工程、後端架構與產品設計路上的思考與實踐。
 

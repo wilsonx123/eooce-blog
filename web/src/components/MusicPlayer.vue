@@ -393,7 +393,7 @@ onBeforeUnmount(() => {
     >
       <div
         v-show="open"
-        class="card absolute right-0 top-full z-50 mt-2 flex max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-2rem)] w-80 flex-col overflow-hidden p-0 shadow-lift"
+        class="card fixed left-4 right-4 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden p-0 shadow-lift md:absolute md:left-auto md:top-full md:right-0 md:mt-2 md:w-80"
       >
         <!-- 正在播放（本地清單已隱藏且未播放 YouTube 時整塊不顯示） -->
         <div v-if="currentYt || showLocal" class="shrink-0 border-b border-slate-100 px-4 py-3 dark:border-slate-800">

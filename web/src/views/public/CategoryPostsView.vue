@@ -7,7 +7,7 @@ import PostCard from '@/components/PostCard.vue'
 import Pagination from '@/components/Pagination.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import { BASE_TITLE } from '@/utils/title'
+import { setRouteTitle } from '@/utils/title'
 
 const props = defineProps<{ kind: 'category' | 'tag' }>()
 const route = useRoute()
@@ -40,8 +40,8 @@ async function load() {
     } catch {
       title.value = decodeURIComponent(slug)
     }
-    // 標籤頁標題：主標題-分類/標籤名稱
-    document.title = `${BASE_TITLE}-${title.value}`
+    // 標籤頁標題：站名-分類/標籤名稱（站名隨網站設定動態更新）
+    setRouteTitle(title.value)
   } finally {
     loading.value = false
   }

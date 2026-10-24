@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { publicApi } from '@/api'
 import type { CustomPage } from '@/types'
-import { BASE_TITLE } from '@/utils/title'
+import { setRouteTitle } from '@/utils/title'
 import MarkdownView from '@/components/MarkdownView.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -19,7 +19,7 @@ async function load() {
   page.value = null
   try {
     page.value = await publicApi.page(route.params.slug as string)
-    document.title = `${BASE_TITLE}-${page.value.title}`
+    setRouteTitle(page.value.title)
   } catch {
     missing.value = true
   } finally {

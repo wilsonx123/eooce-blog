@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { publicApi } from '@/api'
 import type { SiteInfo } from '@/types'
+import { setBaseTitle } from '@/utils/title'
 
 const CACHE_KEY = 'blog_site_cache'
 
@@ -35,6 +36,11 @@ export const useSiteStore = defineStore('site', {
         const info = await publicApi.site()
         this.info = { ...DEFAULT_SITE, ...info }
         this.loaded = true
+        // 站名與副標題即時同步到瀏覽器標籤頁（與 Express 模式的伺服器端注入行為一致）
+        setBaseTitle(this.info.site_title)
+        if (this.info.site_subtitle) {
+          document.querySelector('meta[name="description"]')?.setAttribute('content', this.info.site_subtitle)
+        }
         try {
           localStorage.setItem(CACHE_KEY, JSON.stringify(this.info))
         } catch {

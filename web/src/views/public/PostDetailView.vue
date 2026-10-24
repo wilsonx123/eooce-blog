@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
 import { publicApi } from '@/api'
 import type { Comment, PostDetail } from '@/types'
-import { BASE_TITLE } from '@/utils/title'
+import { setRouteTitle } from '@/utils/title'
 import MarkdownView, { type TocItem } from '@/components/MarkdownView.vue'
 import CoverPlaceholder from '@/components/CoverPlaceholder.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -37,7 +37,7 @@ async function loadPost() {
   toc.value = []
   try {
     post.value = await publicApi.post(route.params.slug as string)
-    document.title = `${BASE_TITLE}-${post.value.title}`
+    setRouteTitle(post.value.title)
   } catch {
     missing.value = true
   } finally {

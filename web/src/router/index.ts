@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { BASE_TITLE } from '@/utils/title'
+import { setRouteTitle } from '@/utils/title'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -139,10 +139,9 @@ router.beforeEach((to) => {
   }
 })
 
-// 標籤頁標題：首頁只顯示主標題，其餘頁面為「主標題-頁面標題」（動態頁面由視圖自行覆蓋）
+// 標籤頁標題：首頁只顯示站名，其餘頁面為「站名-頁面標題」（站名隨網站設定動態更新）
 router.afterEach((to) => {
-  const title = to.meta.title as string | undefined
-  document.title = title ? `${BASE_TITLE}-${title}` : BASE_TITLE
+  setRouteTitle(to.meta.title as string | undefined)
 })
 
 export default router

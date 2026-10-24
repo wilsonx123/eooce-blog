@@ -42,7 +42,7 @@ export function createApp() {
     const esc = (s: string) =>
       s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-    // 僅替換 meta description 為網站副標題；<title> 一律以 index.html 原文為準（標籤頁標題控制權在源檔案）
+    // 伺服器端替換 meta description 為網站副標題；<title> 由前端加載網站設定後動態更新（見 web/src/utils/title.ts）
     const renderIndex = (): string => {
       const settings = db
         .prepare("SELECT key, value FROM site_settings WHERE key IN ('site_title','site_subtitle')")

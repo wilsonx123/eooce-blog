@@ -1,7 +1,7 @@
 /** 極簡路由器：與 Express 版 API 行為一致（/api 網關的分發核心） */
 import { jsonFail, jsonOk, readJsonBody, toErrorResponse } from './http'
 import { jwtSecret, verifyToken, type AuthPayload } from './jwt'
-import { seedIfEmpty, seedNavIfEmpty } from './seed'
+import { ensureSchema, seedIfEmpty, seedNavIfEmpty } from './seed'
 import { registerAuthRoutes } from './auth-routes'
 import { registerPublicRoutes } from './public-routes'
 import { registerAdminRoutes } from './admin-routes'
@@ -52,16 +52,17 @@ export function route(
   ROUTES.push({ method, regex: new RegExp('^' + regexStr + '$'), segNames, handler })
 }
 
-/** 種子初始化每個 Worker 實例只觸發一次檢查（users 表非空即跳過，天然冪等） */
-let seedChecked = false
-async function ensureSeed(env: Env): Promise<void> {
-  if (seedChecked) return
-  seedChecked = true
+/** 初始化（建表 + 種子）每個 Worker 實例只觸發一次檢查；任一步失敗重置，下次請求自動重試 */
+let initChecked = false
+async function ensureInit(env: Env): Promise<void> {
+  if (initChecked) return
+  initChecked = true
   try {
+    await ensureSchema(env.DB)
     await seedNavIfEmpty(env.DB)
     await seedIfEmpty(env.DB)
   } catch (error) {
-    seedChecked = false
+    initChecked = false
     throw error
   }
 }
@@ -111,7 +112,7 @@ async function dispatch(request: Request, env: Env, restPath: string): Promise<R
 
 export async function handleApiRequest(request: Request, env: Env, restPath: string): Promise<Response> {
   try {
-    await ensureSeed(env)
+    await ensureInit(env)
     return await dispatch(request, env, restPath)
   } catch (error) {
     return toErrorResponse(error)

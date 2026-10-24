@@ -165,7 +165,8 @@ Cloudflare Pages 不支援 Node 原生模組與檔案系統，因此項目內置
 ### 方式一：GitHub/Push 集成（推薦）
 
 1. 建立 D1 資料庫：`npx wrangler d1 create blog-db`，記下輸出的 `database_id`，填入 `wrangler.toml`
-2. 初始化表結構（可選，種子邏輯會在首次訪問時自動跑，但建表必須手動做一次）：
+2. 初始化表結構（**可完全省略**：表結構與種子資料會在首次 API 請求時自動建立，
+   僅有需要提前驗證 D1 連通性時才手動執行）：
 
    ```bash
    npx wrangler d1 execute blog-db --remote --file=migrations/schema.sql
@@ -175,7 +176,7 @@ Cloudflare Pages 不支援 Node 原生模組與檔案系統，因此項目內置
    - Build command：`npm install && npm run build`
    - Build output directory：`web/dist`
 
-   > 頁面構建環境只會安裝根目錄依賴；`web/`（vue-tsc、vite 等）的依賴由項目內置的 `prebuild` 腳本自動補裝，無需在 Dashboard 額外設置。若缺少 web `package-lock.json`，構建仍可進行，但版本可能不一致。
+   > 頁面構建環境只會安裝根目錄依賴；`web/`（vue-tsc、vite 等）的依賴由項目內置的 `prebuild` 腳本自動補裝，無需在 Dashboard 額外設定。若缺少 web `package-lock.json`，構建仍可進行，但版本可能不一致。
 4. 專案 Settings → Bindings 添加：
    - Type `D1 database` → Variable name `DB` → 選擇 `blog-db`
    - Type `Environment variables` → Variable name `JWT_SECRET` → 敏感值，填隨機長字串（**必須配置**，否則使用內置開發密鑰）
@@ -184,9 +185,9 @@ Cloudflare Pages 不支援 Node 原生模組與檔案系統，因此項目內置
 ### 方式二：Wrangler 直接部署
 
 ```bash
-# 1. 建立 D1 資料庫並初始化
+# 1. 建立 D1 資料庫（表結構與種子資料會在首次 API 請求時自動建立，無需手動建表）
 npx wrangler d1 create blog-db
-npx wrangler d1 execute blog-db --remote --file=migrations/schema.sql
+npx wrangler d1 execute blog-db --remote --file=migrations/schema.sql   # 可選，提前驗證連通性
 # 把上一步輸出的 database_id 填入 wrangler.toml
 
 # 2. 設定線上密鑰（也可部署後在 Dashboard 配置）

@@ -9,4 +9,4 @@ pages_build_output_dir = "web/dist"
 binding = "DB"
 database_name = "blog-db"
 # 建立数据库后，把 wrangler d1 create 输出的 database_id 填在这里
-database_id = "<REPLACE_WITH_YOUR_D1_DATABASE_ID>"
+database_id = "c7029e93-9b79-46c0-aee5-3fbb3109f406"

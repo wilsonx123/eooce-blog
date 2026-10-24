@@ -393,10 +393,10 @@ onBeforeUnmount(() => {
     >
       <div
         v-show="open"
-        class="card absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden p-0 shadow-lift"
+        class="card absolute right-0 top-full z-50 mt-2 flex max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-2rem)] w-80 flex-col overflow-hidden p-0 shadow-lift"
       >
         <!-- 正在播放（本地清單已隱藏且未播放 YouTube 時整塊不顯示） -->
-        <div v-if="currentYt || showLocal" class="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+        <div v-if="currentYt || showLocal" class="shrink-0 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
           <!-- YouTube 播放模式：面板內嵌 YouTube 播放器，控制使用其內建介面 -->
           <template v-if="currentYt">
             <div class="mb-2 flex items-center justify-between gap-2">
@@ -518,8 +518,8 @@ onBeforeUnmount(() => {
           </template>
         </div>
 
-        <!-- 歌曲列表 -->
-        <div class="max-h-80 overflow-y-auto">
+        <!-- 歌曲列表（小屏時受面板限高約束，內部捲動） -->
+        <div class="max-h-80 min-h-0 flex-1 overflow-y-auto">
           <!-- YouTube 自訂清單（置頂顯示） -->
           <ul v-if="showYt && ytEntries.length" class="border-b border-slate-100 p-1.5 dark:border-slate-800">
             <li v-for="(entry, i) in ytEntries" :key="`yt-${i}-${entry.id || entry.playlistId}`">

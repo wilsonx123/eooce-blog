@@ -623,6 +623,8 @@ router.put('/site', (req, res) => {
     music_visible: z.boolean().default(true),
     music_list_url: z.string().trim().max(300).default(''),
     music_youtube: z.string().trim().max(2000).default(''),
+    music_local_visible: z.boolean().default(true),
+    music_youtube_visible: z.boolean().default(true),
   })
   const parsed = schema.safeParse(req.body)
   if (!parsed.success) {
@@ -666,6 +668,8 @@ router.put('/site', (req, res) => {
   upsert.run('music_visible', parsed.data.music_visible ? '1' : '0')
   upsert.run('music_list_url', parsed.data.music_list_url)
   upsert.run('music_youtube', parsed.data.music_youtube)
+  upsert.run('music_local_visible', parsed.data.music_local_visible ? '1' : '0')
+  upsert.run('music_youtube_visible', parsed.data.music_youtube_visible ? '1' : '0')
   ok(res, { message: '網站資料已更新' })
 })
 

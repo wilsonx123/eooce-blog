@@ -20,6 +20,8 @@ const form = ref({
   footer_copyright: '',
   footer_note: '',
   music_visible: true,
+  music_local_visible: true,
+  music_youtube_visible: true,
   music_list_url: '',
   music_youtube: '',
   icp_text: '',
@@ -50,6 +52,8 @@ async function loadSite() {
     footer_copyright: site.info.footer_copyright ?? '',
     footer_note: site.info.footer_note ?? '',
     music_visible: site.info.music_visible !== '0',
+    music_local_visible: site.info.music_local_visible !== '0',
+    music_youtube_visible: site.info.music_youtube_visible !== '0',
     music_list_url: site.info.music_list_url ?? '',
     music_youtube: site.info.music_youtube ?? '',
     icp_text: site.info.icp_text ?? '',
@@ -324,13 +328,27 @@ onMounted(loadSite)
         <!-- 音樂播放器 -->
         <div class="rounded-2xl border border-slate-200/80 p-4 dark:border-slate-800">
           <h3 class="text-sm font-bold text-slate-900 dark:text-white">音樂播放器</h3>
-          <p class="mt-1 text-xs text-slate-400">控制頁首右上角的音樂播放器；關閉後前台不再顯示</p>
+          <p class="mt-1 text-xs text-slate-400">控制頁首右上角的音樂播放器；關閉後前台不再顯示。下方兩個開關分別控制「歌曲清單（歌單 API）」與「YouTube 播放清單」區塊的顯示</p>
 
           <div class="mt-4 space-y-4">
             <div class="flex items-center justify-between gap-3">
               <span class="text-xs font-medium text-slate-500 dark:text-slate-400">顯示播放器</span>
               <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <input v-model="form.music_visible" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                顯示
+              </label>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">歌曲清單（歌單 API）</span>
+              <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <input v-model="form.music_local_visible" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                顯示
+              </label>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">YouTube 播放清單</span>
+              <label class="flex cursor-pointer items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <input v-model="form.music_youtube_visible" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
                 顯示
               </label>
             </div>

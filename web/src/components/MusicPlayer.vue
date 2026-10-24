@@ -96,6 +96,11 @@ function closeYouTube() {
   currentYtIndex.value = -1
 }
 
+/** 後台「音樂播放器」開關：分別控制歌曲清單（歌單 API）與 YouTube 清單的顯示 */
+const showLocal = computed(() => site.info.music_local_visible !== '0')
+const showYt = computed(() => site.info.music_youtube_visible !== '0')
+const ytUsable = computed(() => showYt.value && ytEntries.value.length > 0)
+
 const currentSong = computed(() => songs.value[currentIndex.value] ?? null)
 const progress = computed(() =>
   duration.value > 0 ? Math.min(100, (currentTime.value / duration.value) * 100) : 0,
@@ -336,6 +341,8 @@ onBeforeUnmount(() => {
         <span class="eq-bar h-4 w-[3px] rounded-full bg-accent-500" style="animation-delay: 0.3s" />
         <span class="eq-bar h-3 w-[3px] rounded-full bg-brand-500" style="animation-delay: 0.6s" />
       </span>
+      <!-- YouTube 背景播放中：顯示紅色 YT 標記，點按圖示可展開播放器 -->
+      <span v-else-if="currentYt" class="text-[9px] font-bold leading-none text-rose-500">YT</span>
       <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
         <path
           d="M9 18V6l10-2v11M9 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm10-2a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"
@@ -354,7 +361,7 @@ onBeforeUnmount(() => {
       leave-to-class="opacity-0 -translate-y-1 scale-95"
     >
       <div
-        v-if="open"
+        v-show="open"
         class="card absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden p-0 shadow-lift"
       >
         <!-- 正在播放 -->
@@ -377,7 +384,7 @@ onBeforeUnmount(() => {
             </div>
             <p class="mt-1.5 text-center text-[10px] text-slate-400">播放控制使用 YouTube 內建介面；下方清單可切回本地歌曲</p>
           </template>
-          <template v-else>
+          <template v-else-if="showLocal">
           <div class="flex items-center gap-2">
             <span v-if="playing" class="flex h-3.5 items-end justify-center gap-[2px]" aria-hidden="true">
               <span class="eq-bar h-1.5 w-[2.5px] rounded-full bg-brand-500" style="animation-delay: 0s" />
@@ -478,12 +485,17 @@ onBeforeUnmount(() => {
             </div>
           </div>
           </template>
+          <template v-else>
+            <p class="py-5 text-center text-xs text-slate-400">
+              {{ ytUsable ? '本地歌曲清單已隱藏；請點選下方 YouTube 條目播放' : '歌曲清單已由管理人員隱藏，可於後台重新開啟' }}
+            </p>
+          </template>
         </div>
 
         <!-- 歌曲列表 -->
         <div class="max-h-80 overflow-y-auto">
           <!-- YouTube 自訂清單（置頂顯示） -->
-          <ul v-if="ytEntries.length" class="border-b border-slate-100 p-1.5 dark:border-slate-800">
+          <ul v-if="showYt && ytEntries.length" class="border-b border-slate-100 p-1.5 dark:border-slate-800">
             <li v-for="(entry, i) in ytEntries" :key="`yt-${i}-${entry.id || entry.playlistId}`">
               <button
                 type="button"
@@ -511,6 +523,7 @@ onBeforeUnmount(() => {
             </svg>
             <span class="min-w-0 flex-1">{{ playError }}</span>
           </p>
+          <template v-if="showLocal">
           <div v-if="loading" class="space-y-2 p-4">
             <div v-for="i in 6" :key="i" class="h-9 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
           </div>
@@ -557,6 +570,7 @@ onBeforeUnmount(() => {
             沒有匹配「{{ query.trim() }}」的歌曲
           </p>
           <p v-else class="p-6 text-center text-sm text-slate-400">暫無歌曲</p>
+          </template>
         </div>
       </div>
     </transition>

@@ -111,6 +111,10 @@ export interface SiteInfo {
   music_list_url?: string
   /** YouTube 播放清單：每行一條「名稱 | 網址」，支援 watch / youtu.be / shorts 與 ?list= */
   music_youtube?: string
+  /** 音樂播放器歌曲清單（歌單 API）是否顯示：'1' 顯示 / '0' 隱藏 */
+  music_local_visible?: string
+  /** 音樂播放器 YouTube 清單是否顯示：'1' 顯示 / '0' 隱藏 */
+  music_youtube_visible?: string
 }
 
 export type NavMenuType = 'system' | 'group' | 'page' | 'link'

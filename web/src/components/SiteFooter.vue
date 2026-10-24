@@ -38,6 +38,13 @@ const beianItems = computed(() => {
   return items
 })
 
+/** 頁腳徽章文字（留空使用預設） */
+const footerBadge = computed(() => (site.info.footer_badge ?? '').trim() || '記錄不息 · 筆耕不輟')
+
+/** 頁腳版權與標語：留空保留預設版式（© 年份 站名 · Powered by eooce） */
+const copyrightText = computed(() => (site.info.footer_copyright ?? '').trim())
+const footerNote = computed(() => (site.info.footer_note ?? '').trim())
+
 onMounted(async () => {
   navStore.fetch()
   try {
@@ -75,7 +82,7 @@ onMounted(async () => {
               <span class="absolute inline-flex h-full w-full animate-ping-soft rounded-full bg-emerald-400" />
               <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
             </span>
-            記錄不息 · 筆耕不輟
+            {{ footerBadge }}
           </p>
         </div>
 
@@ -141,7 +148,10 @@ onMounted(async () => {
       </div>
 
       <div class="mt-10 grid gap-3 border-t border-slate-200/70 pt-6 sm:grid-cols-[1fr_auto_1fr] sm:items-center dark:border-slate-800">
-        <p class="text-center text-xs text-slate-400 sm:text-left dark:text-slate-500">
+        <p v-if="copyrightText" class="text-center text-xs text-slate-400 sm:text-left dark:text-slate-500">
+          {{ copyrightText }}
+        </p>
+        <p v-else class="text-center text-xs text-slate-400 sm:text-left dark:text-slate-500">
           © {{ year }} {{ site.info.site_title }} · Powered by
           <a
             href="https://github.com/eooce/eooce-blog"
@@ -174,7 +184,10 @@ onMounted(async () => {
           </a>
         </div>
 
-        <p class="text-center text-xs text-slate-400 sm:text-right dark:text-slate-500">
+        <p v-if="footerNote" class="text-center text-xs text-slate-400 sm:text-right dark:text-slate-500">
+          {{ footerNote }}
+        </p>
+        <p v-else class="text-center text-xs text-slate-400 sm:text-right dark:text-slate-500">
           用 <span class="text-rose-500">♥</span> 編寫，與代碼一同成長
         </p>
       </div>

@@ -22,6 +22,23 @@ const heroTags = ref<Tag[]>([])
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 const loading = ref(true)
 
+/** 首頁大標題：後台「網站設定 → 首頁標語」自訂；可用豎線 | 包住一段顯示為漸變色（留空使用預設） */
+const heroParts = computed(() => {
+  const raw = (site.info.hero_title ?? '').trim()
+  const [before = '', mid = '', after = ''] = raw.split('|')
+  return before || mid || after ? { before, mid, after } : { before: '記錄', mid: '代碼與文字的', after: '成長軌跡' }
+})
+
+/** 引導語與打字機詞組（詞組以逗號分隔，留空使用預設） */
+const heroIntro = computed(() => (site.info.hero_intro ?? '').trim() || '在這裏，我持續記錄')
+const typedWords = computed(() => {
+  const list = (site.info.hero_typed_words ?? '')
+    .split(/[,，]/)
+    .map((word) => word.trim())
+    .filter(Boolean)
+  return list.length ? list : ['前端工程', '後端架構', '設計思考', '生活隨想']
+})
+
 const featured = computed(() => posts.value[0])
 // 第二屏卡片最多 9 個：首頁共 10 篇 = 1 篇置頂大卡片 + 9 個卡片
 const rest = computed(() => posts.value.slice(1, 10))
@@ -99,15 +116,15 @@ onMounted(() => {
           </p>
 
           <h1 class="text-4xl font-black leading-[1.3] tracking-tight text-slate-900 sm:text-6xl sm:leading-[1.3] dark:text-white">
-            記錄
-            <span class="gradient-text-animated">代碼與文字的</span>
-            <br class="hidden sm:block" />
-            成長軌跡
+            {{ heroParts.before }}
+            <span v-if="heroParts.mid" class="gradient-text-animated">{{ heroParts.mid }}</span>
+            <br v-if="heroParts.mid" class="hidden sm:block" />
+            {{ heroParts.after }}
           </h1>
 
           <p class="mt-6 flex flex-wrap items-baseline gap-x-1 text-base text-slate-500 sm:text-lg dark:text-slate-400">
-            <span class="mr-2">在這裏，我持續記錄</span>
-            <TypeWriter :words="['前端工程', '後端架構', '設計思考', '生活隨想']" class="text-xl sm:text-2xl" />
+            <span class="mr-2">{{ heroIntro }}</span>
+            <TypeWriter :words="typedWords" class="text-xl sm:text-2xl" />
           </p>
 
           <p class="mt-4 max-w-xl text-sm leading-relaxed text-slate-500 sm:text-base dark:text-slate-400">

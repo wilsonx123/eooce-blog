@@ -10,6 +10,12 @@ const DEFAULT_SITE: SiteInfo = {
   site_title: '',
   site_subtitle: '',
   about_content: '',
+  hero_title: '',
+  hero_intro: '',
+  hero_typed_words: '',
+  footer_badge: '',
+  footer_copyright: '',
+  footer_note: '',
 }
 
 /** 讀取上次成功獲取的網站資料，重新整理時首屏即可顯示正確內容 */

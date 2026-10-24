@@ -622,6 +622,12 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
     police_text: z.string().trim().max(60).default(''),
     police_url: z.string().trim().max(300).default(''),
     police_visible: z.boolean().default(true),
+    hero_title: z.string().trim().max(120).default(''),
+    hero_intro: z.string().trim().max(60).default(''),
+    hero_typed_words: z.string().trim().max(200).default(''),
+    footer_badge: z.string().trim().max(60).default(''),
+    footer_copyright: z.string().trim().max(120).default(''),
+    footer_note: z.string().trim().max(120).default(''),
   })
   const parsed = schema.safeParse(await ctx.body())
   if (!parsed.success) {
@@ -651,6 +657,12 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
     { sql: upsertSql, params: ['police_text', parsed.data.police_text] },
     { sql: upsertSql, params: ['police_url', parsed.data.police_url] },
     { sql: upsertSql, params: ['police_visible', parsed.data.police_visible ? '1' : '0'] },
+    { sql: upsertSql, params: ['hero_title', parsed.data.hero_title] },
+    { sql: upsertSql, params: ['hero_intro', parsed.data.hero_intro] },
+    { sql: upsertSql, params: ['hero_typed_words', parsed.data.hero_typed_words] },
+    { sql: upsertSql, params: ['footer_badge', parsed.data.footer_badge] },
+    { sql: upsertSql, params: ['footer_copyright', parsed.data.footer_copyright] },
+    { sql: upsertSql, params: ['footer_note', parsed.data.footer_note] },
   ])
   return { data: { message: '網站資料已更新' } }
 })

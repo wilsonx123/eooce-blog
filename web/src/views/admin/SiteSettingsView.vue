@@ -13,6 +13,12 @@ const form = ref({
   site_subtitle: '',
   about_content: '',
   site_logo: '',
+  hero_title: '',
+  hero_intro: '',
+  hero_typed_words: '',
+  footer_badge: '',
+  footer_copyright: '',
+  footer_note: '',
   icp_text: '',
   icp_url: '',
   icp_visible: true,
@@ -34,6 +40,12 @@ async function loadSite() {
     site_subtitle: site.info.site_subtitle,
     about_content: site.info.about_content,
     site_logo: site.info.site_logo ?? '',
+    hero_title: site.info.hero_title ?? '',
+    hero_intro: site.info.hero_intro ?? '',
+    hero_typed_words: site.info.hero_typed_words ?? '',
+    footer_badge: site.info.footer_badge ?? '',
+    footer_copyright: site.info.footer_copyright ?? '',
+    footer_note: site.info.footer_note ?? '',
     icp_text: site.info.icp_text ?? '',
     icp_url: site.info.icp_url ?? '',
     icp_visible: site.info.icp_visible !== '0',
@@ -141,7 +153,7 @@ onMounted(loadSite)
     <section class="card p-6 sm:p-8">
       <header class="mb-6">
         <h1 class="text-xl font-bold text-slate-900 dark:text-white">網站設定</h1>
-        <p class="mt-1 text-sm text-slate-400">網站的名稱、副標題、Logo 與關於頁內容</p>
+        <p class="mt-1 text-sm text-slate-400">網站的名稱、副標題、Logo、首頁標語與關於頁內容</p>
       </header>
 
       <div class="space-y-5">
@@ -194,6 +206,77 @@ onMounted(loadSite)
             class="input resize-y font-mono text-[13px]"
             placeholder="支援 Markdown 語法，展示在「關於」頁面"
           />
+        </div>
+
+        <!-- 首頁標語與頁腳文字 -->
+        <div class="rounded-2xl border border-slate-200/80 p-4 dark:border-slate-800">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">首頁標語與頁腳文字</h3>
+          <p class="mt-1 text-xs text-slate-400">首頁大標題、引導語、打字機詞組，以及頁腳徽章、版權與標語；留空使用預設</p>
+
+          <div class="mt-4 space-y-4">
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">首頁大標題</label>
+              <input
+                v-model="form.hero_title"
+                type="text"
+                maxlength="120"
+                class="input"
+                placeholder="留空顯示預設：記錄 |代碼與文字的| 成長軌跡（豎線包住的部分顯示為漸變色）"
+              />
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">首頁引導語</label>
+                <input
+                  v-model="form.hero_intro"
+                  type="text"
+                  maxlength="60"
+                  class="input"
+                  placeholder="留空顯示預設：在這裏，我持續記錄"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">打字機詞組</label>
+                <input
+                  v-model="form.hero_typed_words"
+                  type="text"
+                  maxlength="200"
+                  class="input"
+                  placeholder="以逗號分隔：前端工程，後端架構，設計思考"
+                />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">頁腳徽章</label>
+                <input
+                  v-model="form.footer_badge"
+                  type="text"
+                  maxlength="60"
+                  class="input"
+                  placeholder="留空顯示預設：記錄不息 · 筆耕不輟"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">頁腳版權（整行）</label>
+                <input
+                  v-model="form.footer_copyright"
+                  type="text"
+                  maxlength="120"
+                  class="input"
+                  placeholder="留空顯示預設：© 年份 站名 · Powered by eooce"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">頁腳標語</label>
+                <input
+                  v-model="form.footer_note"
+                  type="text"
+                  maxlength="120"
+                  class="input"
+                  placeholder="留空顯示預設：用 ♥ 編寫，與代碼一同成長"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 備案資料 -->

@@ -614,6 +614,12 @@ router.put('/site', (req, res) => {
     police_text: z.string().trim().max(60).default(''),
     police_url: z.string().trim().max(300).default(''),
     police_visible: z.boolean().default(true),
+    hero_title: z.string().trim().max(120).default(''),
+    hero_intro: z.string().trim().max(60).default(''),
+    hero_typed_words: z.string().trim().max(200).default(''),
+    footer_badge: z.string().trim().max(60).default(''),
+    footer_copyright: z.string().trim().max(120).default(''),
+    footer_note: z.string().trim().max(120).default(''),
   })
   const parsed = schema.safeParse(req.body)
   if (!parsed.success) {
@@ -645,6 +651,13 @@ router.put('/site', (req, res) => {
   upsert.run('police_text', parsed.data.police_text)
   upsert.run('police_url', parsed.data.police_url)
   upsert.run('police_visible', parsed.data.police_visible ? '1' : '0')
+  // 首頁標語與頁腳文字（留空由前台使用預設）
+  upsert.run('hero_title', parsed.data.hero_title)
+  upsert.run('hero_intro', parsed.data.hero_intro)
+  upsert.run('hero_typed_words', parsed.data.hero_typed_words)
+  upsert.run('footer_badge', parsed.data.footer_badge)
+  upsert.run('footer_copyright', parsed.data.footer_copyright)
+  upsert.run('footer_note', parsed.data.footer_note)
   ok(res, { message: '網站資料已更新' })
 })
 

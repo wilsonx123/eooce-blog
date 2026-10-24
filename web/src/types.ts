@@ -93,6 +93,18 @@ export interface SiteInfo {
   police_text?: string
   police_url?: string
   police_visible?: string
+  /** 首頁大標題：可用豎線 | 包住一段顯示為漸變色，留空使用預設 */
+  hero_title?: string
+  /** 首頁引導語（TypeWriter 前的固定文字），留空使用預設 */
+  hero_intro?: string
+  /** 首頁打字機詞組，以逗號分隔，留空使用預設 */
+  hero_typed_words?: string
+  /** 頁腳徽章文字，留空使用預設 */
+  footer_badge?: string
+  /** 頁腳版權整行，留空使用預設（© 年份 站名 · Powered by eooce） */
+  footer_copyright?: string
+  /** 頁腳標語，留空使用預設 */
+  footer_note?: string
 }
 
 export type NavMenuType = 'system' | 'group' | 'page' | 'link'

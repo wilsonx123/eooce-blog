@@ -9,6 +9,7 @@
     "test": "vitest run",
     "setup": "npm install && npm --prefix web install",
     "build": "npm --prefix web run build",
+    "prebuild": "npm --prefix web install",
     "typecheck:cf": "tsc -p tsconfig.functions.json --noEmit",
     "cf:dev": "npm run build && npx wrangler pages dev --port 8788",
     "cf:deploy": "npm run build && npx wrangler pages deploy"

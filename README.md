@@ -174,6 +174,8 @@ Cloudflare Pages 不支援 Node 原生模組與檔案系統，因此項目內置
 3. 在 Cloudflare Dashboard 建立 Pages 專案（Connect to Git 選擇本倉庫）：
    - Build command：`npm install && npm run build`
    - Build output directory：`web/dist`
+
+   > 頁面構建環境只會安裝根目錄依賴；`web/`（vue-tsc、vite 等）的依賴由項目內置的 `prebuild` 腳本自動補裝，無需在 Dashboard 額外設置。若缺少 web `package-lock.json`，構建仍可進行，但版本可能不一致。
 4. 專案 Settings → Bindings 添加：
    - Type `D1 database` → Variable name `DB` → 選擇 `blog-db`
    - Type `Environment variables` → Variable name `JWT_SECRET` → 敏感值，填隨機長字串（**必須配置**，否則使用內置開發密鑰）

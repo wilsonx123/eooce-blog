@@ -36,10 +36,13 @@ function cachedSite(): SiteInfo | null {
 }
 
 export const useSiteStore = defineStore('site', {
-  state: () => ({
-    info: (cachedSite() ?? { ...DEFAULT_SITE }) as SiteInfo,
-    loaded: false,
-  }),
+  state: () => {
+    const info = (cachedSite() ?? { ...DEFAULT_SITE }) as SiteInfo
+    // 本地快取存在時，啟動即套用站名到標籤頁：消除重新整理時 index.html 佔位標題的閃現
+    //（正式站名仍以網路加載結果為準，fetch 成功後會再次 setBaseTitle）
+    setBaseTitle(info.site_title)
+    return { info, loaded: false }
+  },
   actions: {
     async fetch(retries = 2): Promise<void> {
       if (this.loaded) return

@@ -100,7 +100,6 @@ function closeYouTube() {
 /** 後台「音樂播放器」開關：分別控制歌曲清單（歌單 API）與 YouTube 清單的顯示 */
 const showLocal = computed(() => site.info.music_local_visible !== '0')
 const showYt = computed(() => site.info.music_youtube_visible !== '0')
-const ytUsable = computed(() => showYt.value && ytEntries.value.length > 0)
 
 /** 已抓取的影片標題（videoId → 標題），後台未填名稱時展示 */
 const ytMeta = ref<Record<string, string>>({})
@@ -396,8 +395,8 @@ onBeforeUnmount(() => {
         v-show="open"
         class="card absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden p-0 shadow-lift"
       >
-        <!-- 正在播放 -->
-        <div class="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+        <!-- 正在播放（本地清單已隱藏且未播放 YouTube 時整塊不顯示） -->
+        <div v-if="currentYt || showLocal" class="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
           <!-- YouTube 播放模式：面板內嵌 YouTube 播放器，控制使用其內建介面 -->
           <template v-if="currentYt">
             <div class="mb-2 flex items-center justify-between gap-2">
@@ -516,11 +515,6 @@ onBeforeUnmount(() => {
               />
             </div>
           </div>
-          </template>
-          <template v-else>
-            <p class="py-5 text-center text-xs text-slate-400">
-              {{ ytUsable ? '本地歌曲清單已隱藏；請點選下方 YouTube 條目播放' : '歌曲清單已由管理人員隱藏，可於後台重新開啟' }}
-            </p>
           </template>
         </div>
 

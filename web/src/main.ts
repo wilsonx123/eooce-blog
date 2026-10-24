@@ -3,12 +3,16 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useThemeStore } from '@/stores/theme'
+import { useSiteStore } from '@/stores/site'
 import { vReveal } from '@/directives/reveal'
 import './style.css'
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.directive('reveal', vReveal)
+// 掛載前同步初始化 site store：有本地快取時，啟動即以快取站名更換 index.html 佔位標題，消除「老王Blog」閃現
+useSiteStore(pinia)
 useThemeStore().apply()
 app.mount('#app')

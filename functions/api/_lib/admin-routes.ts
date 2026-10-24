@@ -630,6 +630,7 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
     footer_note: z.string().trim().max(120).default(''),
     music_visible: z.boolean().default(true),
     music_list_url: z.string().trim().max(300).default(''),
+    music_youtube: z.string().trim().max(2000).default(''),
   })
   const parsed = schema.safeParse(await ctx.body())
   if (!parsed.success) {
@@ -669,6 +670,7 @@ route('PUT', 'admin/site', async (ctx: RouteCtx): Promise<HandlerResult> => {
     { sql: upsertSql, params: ['footer_note', parsed.data.footer_note] },
     { sql: upsertSql, params: ['music_visible', parsed.data.music_visible ? '1' : '0'] },
     { sql: upsertSql, params: ['music_list_url', parsed.data.music_list_url] },
+    { sql: upsertSql, params: ['music_youtube', parsed.data.music_youtube] },
   ])
   return { data: { message: '網站資料已更新' } }
 })

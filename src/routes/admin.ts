@@ -622,6 +622,7 @@ router.put('/site', (req, res) => {
     footer_note: z.string().trim().max(120).default(''),
     music_visible: z.boolean().default(true),
     music_list_url: z.string().trim().max(300).default(''),
+    music_youtube: z.string().trim().max(2000).default(''),
   })
   const parsed = schema.safeParse(req.body)
   if (!parsed.success) {
@@ -664,6 +665,7 @@ router.put('/site', (req, res) => {
   if (parsed.data.music_list_url) assertExternalUrl(parsed.data.music_list_url)
   upsert.run('music_visible', parsed.data.music_visible ? '1' : '0')
   upsert.run('music_list_url', parsed.data.music_list_url)
+  upsert.run('music_youtube', parsed.data.music_youtube)
   ok(res, { message: '網站資料已更新' })
 })
 

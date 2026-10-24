@@ -21,6 +21,7 @@ const form = ref({
   footer_note: '',
   music_visible: true,
   music_list_url: '',
+  music_youtube: '',
   icp_text: '',
   icp_url: '',
   icp_visible: true,
@@ -50,6 +51,7 @@ async function loadSite() {
     footer_note: site.info.footer_note ?? '',
     music_visible: site.info.music_visible !== '0',
     music_list_url: site.info.music_list_url ?? '',
+    music_youtube: site.info.music_youtube ?? '',
     icp_text: site.info.icp_text ?? '',
     icp_url: site.info.icp_url ?? '',
     icp_visible: site.info.icp_visible !== '0',
@@ -342,6 +344,17 @@ onMounted(loadSite)
                 placeholder="留空使用預設：https://music.eooce.com/api/music/list"
               />
               <p class="mt-1 text-xs text-slate-400">自訂地址需返回兼容的歌單 JSON：{"data":[{"filename":"歌名 - 歌手.mp3","url":"音頻檔地址"}]}</p>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">YouTube 播放清單</label>
+              <textarea
+                v-model="form.music_youtube"
+                rows="3"
+                class="input resize-y font-mono text-[13px]"
+                placeholder="每行一條：名稱 | https://www.youtube.com/watch?v=xxxxxxxxxxx（名稱可省略，直接貼網址）"
+              />
+              <p class="mt-1 text-xs text-slate-400">支援 watch / youtu.be / shorts 與 ?list= 歌單連結；這些條目會置頂顯示在播放器清單，以內嵌 YouTube 播放器播出</p>
             </div>
           </div>
         </div>

@@ -109,6 +109,8 @@ export interface SiteInfo {
   music_visible?: string
   /** 音樂歌單 API 地址，留空使用預設 */
   music_list_url?: string
+  /** YouTube 播放清單：每行一條「名稱 | 網址」，支援 watch / youtu.be / shorts 與 ?list= */
+  music_youtube?: string
 }
 
 export type NavMenuType = 'system' | 'group' | 'page' | 'link'

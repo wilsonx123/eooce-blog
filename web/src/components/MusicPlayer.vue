@@ -35,6 +35,67 @@ const site = useSiteStore()
 /** 歌單地址：後台「網站設定 → 音樂播放器」可自訂（留空使用內置預設） */
 const listUrl = computed(() => (site.info.music_list_url ?? '').trim() || 'https://music.eooce.com/api/music/list')
 
+/* ---------------- YouTube 播放（後台自訂清單） ---------------- */
+
+interface YtEntry {
+  id: string
+  playlistId?: string
+  title: string
+}
+
+/** 解析 YouTube 連結：支援 watch / youtu.be / shorts 與 ?list= 歌單 */
+function parseYouTubeUrl(url: string): { id: string; playlistId?: string } | null {
+  const video = url.match(/(?:youtube\.com\/(?:watch\?[^\s]*?v=|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/)
+  const list = url.match(/[?&]list=([\w-]+)/)
+  if (video) return { id: video[1], playlistId: list?.[1] }
+  if (list) return { id: '', playlistId: list[1] }
+  return null
+}
+
+/** 後台「YouTube 播放清單」：每行一條「名稱 | 網址」（名稱可省略） */
+const ytEntries = computed<YtEntry[]>(() => {
+  const raw = (site.info.music_youtube ?? '').trim()
+  if (!raw) return []
+  const out: YtEntry[] = []
+  for (const line of raw.split(/\r?\n/)) {
+    const text = line.trim()
+    if (!text) continue
+    const parts = text.split('|')
+    const url = (parts.length >= 2 ? parts[parts.length - 1] : parts[0]).trim()
+    const title = parts.length >= 2 ? parts[0].trim() : ''
+    const parsed = parseYouTubeUrl(url)
+    if (parsed) out.push({ id: parsed.id, playlistId: parsed.playlistId, title: title || (parsed.id ? 'YouTube 影片' : 'YouTube 歌單') })
+  }
+  return out
+})
+
+const currentYt = ref<YtEntry | null>(null)
+const currentYtIndex = ref(-1)
+const ytEmbedUrl = computed(() => {
+  const entry = currentYt.value
+  if (!entry) return ''
+  const params = new URLSearchParams({ autoplay: '1', rel: '0' })
+  if (entry.playlistId) params.set('list', entry.playlistId)
+  return entry.id
+    ? `https://www.youtube.com/embed/${entry.id}?${params}`
+    : `https://www.youtube.com/embed/videoseries?${params}`
+})
+
+/** 播放 YouTube 條目：停止本地音頻，面板內嵌 YouTube 播放器 */
+function playYouTube(entry: YtEntry, index: number) {
+  audio.pause()
+  audio.src = ''
+  currentIndex.value = -1
+  playing.value = false
+  currentYt.value = entry
+  currentYtIndex.value = index
+}
+
+function closeYouTube() {
+  currentYt.value = null
+  currentYtIndex.value = -1
+}
+
 const currentSong = computed(() => songs.value[currentIndex.value] ?? null)
 const progress = computed(() =>
   duration.value > 0 ? Math.min(100, (currentTime.value / duration.value) * 100) : 0,
@@ -110,6 +171,8 @@ function play(index: number) {
     return
   }
   currentIndex.value = index
+  currentYt.value = null
+  currentYtIndex.value = -1
   playError.value = ''
   audio.src = song.url
   audio.play().catch(() => {
@@ -296,6 +359,25 @@ onBeforeUnmount(() => {
       >
         <!-- 正在播放 -->
         <div class="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+          <!-- YouTube 播放模式：面板內嵌 YouTube 播放器，控制使用其內建介面 -->
+          <template v-if="currentYt">
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <p class="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800 dark:text-slate-200">{{ currentYt.title }}</p>
+              <button class="btn-ghost h-7 w-7 shrink-0 rounded-lg p-0" title="關閉 YouTube 播放" @click="closeYouTube">✕</button>
+            </div>
+            <div class="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
+              <iframe
+                v-if="ytEmbedUrl"
+                :src="ytEmbedUrl"
+                :title="currentYt.title"
+                class="absolute inset-0 h-full w-full"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowfullscreen
+              />
+            </div>
+            <p class="mt-1.5 text-center text-[10px] text-slate-400">播放控制使用 YouTube 內建介面；下方清單可切回本地歌曲</p>
+          </template>
+          <template v-else>
           <div class="flex items-center gap-2">
             <span v-if="playing" class="flex h-3.5 items-end justify-center gap-[2px]" aria-hidden="true">
               <span class="eq-bar h-1.5 w-[2.5px] rounded-full bg-brand-500" style="animation-delay: 0s" />
@@ -395,10 +477,30 @@ onBeforeUnmount(() => {
               />
             </div>
           </div>
+          </template>
         </div>
 
         <!-- 歌曲列表 -->
         <div class="max-h-80 overflow-y-auto">
+          <!-- YouTube 自訂清單（置頂顯示） -->
+          <ul v-if="ytEntries.length" class="border-b border-slate-100 p-1.5 dark:border-slate-800">
+            <li v-for="(entry, i) in ytEntries" :key="`yt-${i}-${entry.id || entry.playlistId}`">
+              <button
+                type="button"
+                class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors"
+                :class="
+                  currentYtIndex === i
+                    ? 'bg-brand-50 dark:bg-brand-500/10'
+                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                "
+                @click="playYouTube(entry, i)"
+              >
+                <span class="w-4 shrink-0 text-center text-[10px] font-bold text-rose-500">YT</span>
+                <span class="min-w-0 flex-1 block truncate text-sm text-slate-700 dark:text-slate-300">{{ entry.title }}</span>
+                <span class="shrink-0 text-[10px] text-rose-500">YouTube</span>
+              </button>
+            </li>
+          </ul>
           <!-- 播放錯誤橫幅（不擠掉列表） -->
           <p
             v-if="playError"

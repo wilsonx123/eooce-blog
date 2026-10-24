@@ -125,10 +125,6 @@ onMounted(loadCaptcha)
         <button type="submit" class="btn-primary mt-6 w-full !py-2.5" :disabled="loading">
           {{ loading ? '登入中...' : '登 入' }}
         </button>
-
-        <p class="mt-5 text-center text-xs text-slate-500">
-          預設帳號 admin / admin123，登入後請及時修改
-        </p>
       </form>
 
       <p class="mt-6 text-center text-sm">

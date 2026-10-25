@@ -22,11 +22,17 @@ const heroTags = ref<Tag[]>([])
 const page = computed(() => Math.max(1, Number(route.query.page) || 1))
 const loading = ref(true)
 
-/** 首頁大標題：後台「網站設定 → 首頁標語」自訂；可用豎線 | 包住一段顯示為漸變色（留空使用預設） */
+/**
+ * 首頁大標題：後台「網站設定 → 首頁標語」自訂（留空使用預設）。
+ * 含豎線 | 時中段顯示為漸變色；不含豎線時整條標題上漸變色（與預設觀感一致）。
+ */
 const heroParts = computed(() => {
   const raw = (site.info.hero_title ?? '').trim()
+  if (!raw) return { before: '記錄', mid: '代碼與文字的', after: '成長軌跡' }
+  // 未用豎線分隔：整條標題漸變色，避免自訂後變成無色純文字
+  if (!raw.includes('|')) return { before: '', mid: raw, after: '' }
   const [before = '', mid = '', after = ''] = raw.split('|')
-  return before || mid || after ? { before, mid, after } : { before: '記錄', mid: '代碼與文字的', after: '成長軌跡' }
+  return { before, mid, after }
 })
 
 /** 引導語與打字機詞組（詞組以逗號分隔，留空使用預設） */
@@ -118,7 +124,7 @@ onMounted(() => {
           <h1 class="text-4xl font-black leading-[1.3] tracking-tight text-slate-900 sm:text-6xl sm:leading-[1.3] dark:text-white">
             {{ heroParts.before }}
             <span v-if="heroParts.mid" class="gradient-text-animated">{{ heroParts.mid }}</span>
-            <br v-if="heroParts.mid" class="hidden sm:block" />
+            <br v-if="heroParts.mid && heroParts.after" class="hidden sm:block" />
             {{ heroParts.after }}
           </h1>
 

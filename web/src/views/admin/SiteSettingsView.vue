@@ -231,7 +231,7 @@ onMounted(loadSite)
                 type="text"
                 maxlength="120"
                 class="input"
-                placeholder="留空顯示預設：記錄 |代碼與文字的| 成長軌跡（豎線包住的部分顯示為漸變色）"
+                placeholder="留空顯示預設：記錄 |代碼與文字的| 成長軌跡（豎線包住部分漸變色；不加豎線則整句漸變色）"
               />
             </div>
             <div class="grid gap-3 sm:grid-cols-2">

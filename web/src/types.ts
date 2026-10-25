@@ -93,7 +93,7 @@ export interface SiteInfo {
   police_text?: string
   police_url?: string
   police_visible?: string
-  /** 首頁大標題：可用豎線 | 包住一段顯示為漸變色，留空使用預設 */
+  /** 首頁大標題：豎線 | 包住部分漸變色，不加豎線則整句漸變色；留空使用預設 */
   hero_title?: string
   /** 首頁引導語（TypeWriter 前的固定文字），留空使用預設 */
   hero_intro?: string

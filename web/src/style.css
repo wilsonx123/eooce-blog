@@ -2,24 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------------- 鴻蒙字體 ---------------- */
+/* ---------------- 鴻蒙字體（woff2 壓縮格式，體積約為原 TTF 的一半） ---------------- */
 @font-face {
   font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Regular.ttf') format('truetype');
+  src: url('./assets/fonts/HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Medium.ttf') format('truetype');
+  src: url('./assets/fonts/HarmonyOS_Sans_SC_Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Bold.ttf') format('truetype');
+  src: url('./assets/fonts/HarmonyOS_Sans_SC_Bold.woff2') format('woff2');
   font-weight: 700 900;
   font-style: normal;
   font-display: swap;

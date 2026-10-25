@@ -2,7 +2,16 @@ import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { fail } from '../utils/response.js'
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'blog-dev-secret-change-me'
+/**
+ * JWT 簽名密鑰：生產環境必須在環境變數中配置 JWT_SECRET，缺失即拒絕啟動——
+ * 嚴禁退回內置密鑰，否則任何人都可用公開的預設密鑰偽造管理員憑據。
+ * （開發與測試環境允許使用內置密鑰，方便本地運行。）
+ */
+const JWT_SECRET =
+  process.env.JWT_SECRET ?? (process.env.NODE_ENV === 'production' ? '' : 'blog-dev-secret-change-me')
+if (!JWT_SECRET) {
+  throw new Error('生產環境啟動必須設定 JWT_SECRET 環境變數（JWT 簽名密鑰缺失）')
+}
 
 export interface AuthPayload {
   uid: number

@@ -105,6 +105,23 @@ describe('auth', () => {
   })
 })
 
+describe('login rate limiting', () => {
+  it('blocks an ip after 5 wrong passwords and recovers after success', async () => {
+    db.prepare('DELETE FROM login_attempts').run()
+    for (let i = 0; i < 5; i++) {
+      const res = await loginRequest('admin', 'wrong')
+      expect(res.status).toBe(401)
+    }
+    expect((db.prepare('SELECT COUNT(*) AS c FROM login_attempts').get() as { c: number }).c).toBe(5)
+    const blocked = await loginRequest('admin', 'admin123')
+    expect(blocked.status).toBe(429)
+    // 模擬限速視窗過去：直接清空記錄後正確密碼應可登入（成功亦會自行清除失敗記錄）
+    db.prepare('DELETE FROM login_attempts').run()
+    const recovered = await loginRequest('admin', 'admin123')
+    expect(recovered.status).toBe(200)
+  })
+})
+
 describe('admin auth guard', () => {
   it('returns 401 without token', async () => {
     const res = await request(app).get('/api/admin/stats')

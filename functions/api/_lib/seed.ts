@@ -119,10 +119,16 @@ const SCHEMA_STATEMENTS: string[] = [
     code TEXT NOT NULL,
     expires INTEGER NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS login_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  )`,
   'CREATE INDEX IF NOT EXISTS idx_posts_status_published ON posts(status, published_at DESC)',
   'CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category_id)',
   'CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id, status)',
   'CREATE INDEX IF NOT EXISTS idx_captchas_expires ON captchas(expires)',
+  'CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_time ON login_attempts(ip, created_at)',
 ]
 
 let schemaReady = false

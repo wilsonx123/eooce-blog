@@ -35,6 +35,7 @@
     "opencc-js": "^1.0.5",
     "supertest": "^7.0.0",
     "tsx": "^4.19.2",
+    "ttf2woff2": "^8.0.1",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5",
     "wrangler": "^4.0.0"

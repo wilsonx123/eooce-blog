@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import authRouter from './routes/auth.js'
 import publicRouter from './routes/public.js'
 import adminRouter from './routes/admin.js'
+import seoRouter from './routes/seo.js'
 import { db } from './db/database.js'
 import { fail } from './utils/response.js'
 import { HttpError } from './utils/response.js'
@@ -27,6 +28,8 @@ export function createApp() {
   app.use('/api/auth', authRouter)
   app.use('/api/admin', adminRouter)
   app.use('/api', publicRouter)
+  // SEO：sitemap 與 robots 須在下方 SPA 回退（萬用正則）之前註冊
+  app.use(seoRouter)
 
   app.use('/api', (_req, res) => {
     fail(res, 404, '介面不存在')

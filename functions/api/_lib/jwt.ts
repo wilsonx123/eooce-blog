@@ -1,13 +1,23 @@
 /** 基於 Web Crypto 的 HMAC-SHA256 JWT（Workers 環境無 jsonwebtoken 依賴） */
+import { HttpError } from './http'
 
 export interface AuthPayload {
   uid: number
   username: string
 }
 
-/** JWT 簽名密鑰（生產環境必須在 Pages Settings 中配置 JWT_SECRET） */
+/**
+ * JWT 簽名密鑰：必須在 Pages Settings 中配置 JWT_SECRET。
+ * 未配置時直接拒絕（503）——嚴禁退回內置密鑰，否則任何人都可用公開的預設密鑰偽造管理員憑據。
+ */
 export function jwtSecret(env: { JWT_SECRET?: string }): string {
-  return env.JWT_SECRET ?? 'blog-dev-secret-change-me'
+  if (!env.JWT_SECRET) {
+    throw new HttpError(
+      503,
+      '伺服器尚未配置 JWT_SECRET，登入與管理功能暫不可用，請管理員在 Cloudflare Pages 環境變數中添加',
+    )
+  }
+  return env.JWT_SECRET
 }
 
 const DAY_SECONDS = 60 * 60 * 24

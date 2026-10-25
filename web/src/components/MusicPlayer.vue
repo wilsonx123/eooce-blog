@@ -20,9 +20,51 @@ const currentIndex = ref(-1)
 const playing = ref(false)
 const currentTime = ref(0)
 const duration = ref(0)
-const volume = ref(80)
+/* ---------------- 狀態記憶（localStorage）：重新整理後選曲／音量／模式延續 ---------------- */
+
+const STATE_KEY = 'blog_player_state'
+
+interface PlayerState {
+  volume: number
+  mode: 'order' | 'shuffle' | 'repeat'
+  songIndex: number
+  songTime: number
+  ytIndex: number
+}
+
+function loadState(): Partial<PlayerState> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STATE_KEY) ?? 'null')
+    return parsed && typeof parsed === 'object' ? (parsed as Partial<PlayerState>) : {}
+  } catch {
+    return {}
+  }
+}
+
+const savedState = loadState()
+
+/** 將當前選曲/進度/音量/模式寫入本地快取（節流與事件點調用） */
+function saveState() {
+  try {
+    const state: PlayerState = {
+      volume: volume.value,
+      mode: playMode.value,
+      songIndex: currentIndex.value,
+      songTime: audio.currentTime || 0,
+      ytIndex: currentYtIndex.value,
+    }
+    localStorage.setItem(STATE_KEY, JSON.stringify(state))
+  } catch {
+    /* 儲存不可用時忽略 */
+  }
+}
+
+const savedVolume = Number(savedState.volume)
+const volume = ref(Number.isFinite(savedVolume) ? Math.min(100, Math.max(0, Math.round(savedVolume))) : 80)
 const query = ref('')
-const playMode = ref<'order' | 'shuffle' | 'repeat'>('order')
+const playMode = ref<'order' | 'shuffle' | 'repeat'>(
+  savedState.mode === 'shuffle' || savedState.mode === 'repeat' ? savedState.mode : 'order',
+)
 
 const audio = new Audio()
 audio.volume = volume.value / 100
@@ -31,6 +73,10 @@ let listLoaded = false
 let skipTries = 0
 let playErrorTimer = 0
 let clearSearchTimer = 0
+/** 還原進度用：local metadata 就緒後跳轉一次的位置（秒），0 表示無需跳轉 */
+let pendingSeek = 0
+/** 進度寫入 localStorage 的節流時間戳 */
+let lastPersistAt = 0
 
 const site = useSiteStore()
 /** 歌單地址：後台「網站設定 → 音樂播放器」可自訂（留空使用內置預設） */
@@ -72,10 +118,14 @@ const ytEntries = computed<YtEntry[]>(() => {
 
 const currentYt = ref<YtEntry | null>(null)
 const currentYtIndex = ref(-1)
+/** 用戶主動播放過 YouTube：內嵌播放器的 autoplay 參數（還原選擇時不自動出聲） */
+const ytStarted = ref(false)
+/** 面板開啟過或播放過：YouTube iframe 保持掛載（背景播放時收起面板不斷播） */
+const ytSeen = ref(false)
 const ytEmbedUrl = computed(() => {
   const entry = currentYt.value
   if (!entry) return ''
-  const params = new URLSearchParams({ autoplay: '1', rel: '0' })
+  const params = new URLSearchParams({ autoplay: ytStarted.value ? '1' : '0', rel: '0' })
   if (entry.playlistId) params.set('list', entry.playlistId)
   return entry.id
     ? `https://www.youtube.com/embed/${entry.id}?${params}`
@@ -90,11 +140,14 @@ function playYouTube(entry: YtEntry, index: number) {
   playing.value = false
   currentYt.value = entry
   currentYtIndex.value = index
+  ytStarted.value = true
+  saveState()
 }
 
 function closeYouTube() {
   currentYt.value = null
   currentYtIndex.value = -1
+  saveState()
 }
 
 /** 後台「音樂播放器」開關：分別控制歌曲清單（歌單 API）與 YouTube 清單的顯示 */
@@ -113,7 +166,7 @@ function ytTitleOf(entry: YtEntry): string {
 /** 正在播放的 YouTube 標題（標題抓到後自動更新） */
 const currentYtLabel = computed(() => (currentYt.value ? ytTitleOf(currentYt.value) : ''))
 
-/** 清單載入後為後台未命名的條目補抓影片標題 */
+/** 清單載入後為後台未命名的條目補抓影片標題；並還原上次選擇的條目（僅選中，不自動出聲） */
 watch(
   ytEntries,
   (entries) => {
@@ -127,6 +180,12 @@ watch(
         })
         .catch(() => {})
         .finally(() => ytMetaFetching.delete(entry.id))
+    }
+    if (currentYt.value || !showYt.value) return
+    const i = Number(savedState.ytIndex)
+    if (Number.isInteger(i) && i >= 0 && i < entries.length) {
+      currentYt.value = entries[i]
+      currentYtIndex.value = i
     }
   },
   { immediate: true },
@@ -187,6 +246,7 @@ async function loadList() {
     const data = await res.json()
     songs.value = data.data ?? []
     listLoaded = true
+    restoreSong()
   } catch {
     listError.value = '音樂列表加載失敗，請稍後重試'
   } finally {
@@ -194,9 +254,23 @@ async function loadList() {
   }
 }
 
+/** 還原上次播放的本地歌曲（僅選中就位並跳轉進度，不自動播放，尊重瀏覽器自動播放政策） */
+function restoreSong() {
+  if (currentIndex.value >= 0 || currentYt.value || !showLocal.value) return
+  const i = Number(savedState.songIndex)
+  if (!Number.isInteger(i) || i < 0 || i >= songs.value.length) return
+  currentIndex.value = i
+  audio.src = songs.value[i].url
+  const t = Number(savedState.songTime)
+  pendingSeek = Number.isFinite(t) && t > 0 ? t : 0
+}
+
 function toggleOpen() {
   open.value = !open.value
-  if (open.value) void loadList()
+  if (open.value) {
+    void loadList()
+    ytSeen.value = true
+  }
 }
 
 function play(index: number) {
@@ -211,9 +285,11 @@ function play(index: number) {
   currentYtIndex.value = -1
   playError.value = ''
   audio.src = song.url
+  pendingSeek = 0
   audio.play().catch(() => {
     playing.value = false
   })
+  saveState()
 }
 
 function togglePlay() {
@@ -261,6 +337,7 @@ function onEnded() {
 
 function cycleMode() {
   playMode.value = playMode.value === 'order' ? 'shuffle' : playMode.value === 'shuffle' ? 'repeat' : 'order'
+  saveState()
 }
 
 const modeLabel = computed(() =>
@@ -316,10 +393,27 @@ audio.addEventListener('play', () => {
   playing.value = true
   skipTries = 0
 })
-audio.addEventListener('pause', () => (playing.value = false))
+audio.addEventListener('pause', () => {
+  playing.value = false
+  saveState()
+})
 audio.addEventListener('ended', () => onEnded())
-audio.addEventListener('timeupdate', () => (currentTime.value = audio.currentTime))
-audio.addEventListener('loadedmetadata', () => (duration.value = audio.duration))
+// 進度更新：每約 5 秒節流寫入一次進度快取
+audio.addEventListener('timeupdate', () => {
+  currentTime.value = audio.currentTime
+  if (audio.currentTime - lastPersistAt >= 5) {
+    lastPersistAt = audio.currentTime
+    saveState()
+  }
+})
+// 中繼資料就緒：設定長度並套用一次還原進度
+audio.addEventListener('loadedmetadata', () => {
+  duration.value = audio.duration
+  if (pendingSeek > 0 && Number.isFinite(audio.duration)) {
+    audio.currentTime = Math.min(pendingSeek, Math.max(0, audio.duration - 1))
+  }
+  pendingSeek = 0
+})
 // 媒體解碼/格式錯誤：提示並自動跳到下一首，連續 5 首失敗則停止
 audio.addEventListener('error', () => {
   playing.value = false
@@ -334,7 +428,10 @@ audio.addEventListener('error', () => {
   next()
 })
 
-watch(volume, (v) => (audio.volume = v / 100))
+watch(volume, (v) => {
+  audio.volume = v / 100
+  saveState()
+})
 
 function onDocClick(e: MouseEvent) {
   if (open.value && root.value && !root.value.contains(e.target as Node)) open.value = false
@@ -405,7 +502,7 @@ onBeforeUnmount(() => {
             </div>
             <div class="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
               <iframe
-                v-if="ytEmbedUrl"
+                v-if="ytEmbedUrl && (ytSeen || ytStarted)"
                 :src="ytEmbedUrl"
                 :title="currentYtLabel"
                 class="absolute inset-0 h-full w-full"

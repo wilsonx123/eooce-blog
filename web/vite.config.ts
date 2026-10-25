@@ -50,6 +50,19 @@ function injectSiteMeta(): Plugin {
 
 export default defineConfig({
   plugins: [vue(), injectSiteMeta()],
+  build: {
+    rollupOptions: {
+      output: {
+        // 將後台文章編輯器（md-editor-v3 及其編碼/高亮依賴）拆成獨立 chunk：
+        // 編輯器僅在後台路由延遲載入，獨立 chunk 令其餘代碼更新時編輯器快取不失效
+        manualChunks: {
+          editor: ['md-editor-v3'],
+        },
+      },
+    },
+    // md-editor-v3 屬後台專用且延遲載入，體積已知且可接受，放寬單 chunk 提示閾值
+    chunkSizeWarningLimit: 1000,
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

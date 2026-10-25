@@ -166,6 +166,12 @@ onMounted(() => {
                 <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ comment.nickname }}</span>
                 <span class="badge" :class="statusBadge(comment.status)">{{ statusLabel(comment.status) }}</span>
                 <span class="text-xs text-slate-400">{{ dayjs(comment.created_at).format('YYYY-MM-DD HH:mm') }}</span>
+                <a
+                  v-if="comment.email"
+                  :href="`mailto:${comment.email}`"
+                  class="text-xs text-slate-400 hover:text-brand-500 hover:underline"
+                  >{{ comment.email }}</a
+                >
               </div>
               <p class="mt-0.5 text-xs text-slate-400">
                 <template v-if="source === 'guestbook'">來自留言板</template>

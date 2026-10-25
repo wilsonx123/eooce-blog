@@ -370,7 +370,10 @@ onMounted(load)
             <select v-model="form.system_path" class="input">
               <option value="/">首頁</option>
               <option value="/archives">歸檔</option>
+              <option value="/categories">分類</option>
+              <option value="/tags">標籤</option>
               <option value="/about">關於</option>
+              <option value="/guestbook">留言板</option>
             </select>
           </div>
 

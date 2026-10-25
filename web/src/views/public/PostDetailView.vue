@@ -264,7 +264,7 @@ onMounted(() => {
             </div>
           </div>
           <p v-else class="mt-6 rounded-2xl bg-slate-50 py-8 text-center text-sm text-slate-400 dark:bg-slate-900 dark:text-slate-500">
-            還沒有評論，來搶沙發吧
+            還沒有評論，沒關係，反正我也不是第一次被世界已讀不回。
           </p>
         </section>
       </article>

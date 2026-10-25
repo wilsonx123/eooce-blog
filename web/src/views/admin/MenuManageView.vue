@@ -44,6 +44,7 @@ const dialogTypes = computed<{ value: NavMenuType; label: string }[]>(() => {
         { value: 'link', label: '直接跳轉' },
       ]
     : [
+        { value: 'system', label: '系統頁面' },
         { value: 'page', label: '單頁' },
         { value: 'group', label: '多頁分組' },
         { value: 'link', label: '直接跳轉' },
@@ -364,8 +365,8 @@ onMounted(load)
             <p class="mt-1 text-xs text-slate-400">前台點擊時將在新標籤頁打開</p>
           </div>
 
-          <!-- 系統頁面（僅編輯內置菜單時可選路徑） -->
-          <div v-if="form.type === 'system' && dialogMode === 'edit'">
+          <!-- 系統頁面（頂層新增或編輯內置菜單時可選路徑） -->
+          <div v-if="form.type === 'system'">
             <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">指向頁面</label>
             <select v-model="form.system_path" class="input">
               <option value="/">首頁</option>

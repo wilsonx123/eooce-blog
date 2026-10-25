@@ -8,6 +8,7 @@ export const DEFAULT_NAV: PublicNavItem[] = [
   { id: -3, label: '標籤', type: 'system', to: '/tags', url: '', open_new_tab: false, children: [] },
   { id: -4, label: '歸檔', type: 'system', to: '/archives', url: '', open_new_tab: false, children: [] },
   { id: -5, label: '關於', type: 'system', to: '/about', url: '', open_new_tab: false, children: [] },
+  { id: -6, label: '留言板', type: 'system', to: '/guestbook', url: '', open_new_tab: false, children: [] },
 ]
 
 export const useNavStore = defineStore('nav', {

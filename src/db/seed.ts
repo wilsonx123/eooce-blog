@@ -7,6 +7,7 @@ const DEFAULT_NAV: Array<{ label: string; path: string }> = [
   { label: '標籤', path: '/tags' },
   { label: '歸檔', path: '/archives' },
   { label: '關於', path: '/about' },
+  { label: '留言板', path: '/guestbook' },
 ]
 
 /** 已有資料庫升級時補充預設導航（僅當菜單表為空） */

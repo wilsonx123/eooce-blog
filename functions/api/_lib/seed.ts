@@ -13,6 +13,7 @@ const DEFAULT_NAV: Array<{ label: string; path: string }> = [
   { label: '標籤', path: '/tags' },
   { label: '歸檔', path: '/archives' },
   { label: '關於', path: '/about' },
+  { label: '留言板', path: '/guestbook' },
 ]
 
 /**
